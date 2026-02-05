@@ -25,14 +25,11 @@ if (firebaseConfig.apiKey !== "YOUR_API_KEY") {
     productsCol = db.collection('products');
     isFirebaseReady = true;
 
-    // SECURITY: If we came from the home page button, force a logout to ask for credentials again
-    if (sessionStorage.getItem('force_admin_login') === 'true') {
-        sessionStorage.removeItem('force_admin_login');
-        firebase.auth().signOut();
-        localStorage.removeItem('adminRole');
-        adminRole = 'none';
-        console.log("🔒 Security: Fresh login forced from home page.");
-    }
+    // FORCE LOGIN ON EVERY RELOAD
+    firebase.auth().signOut();
+    localStorage.removeItem('adminRole');
+    adminRole = 'none';
+    console.log("🔒 Security: Login required on every reload.");
 
     firebase.auth().onAuthStateChanged(user => {
         const loginOverlay = document.getElementById('login-overlay');
@@ -157,8 +154,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     return;
                 }
 
-                // Standard Firebase Login
-                await firebase.auth().setPersistence(firebase.auth.Auth.Persistence.SESSION);
+                // Standard Firebase Login - Set to NONE to force login on reload
+                await firebase.auth().setPersistence(firebase.auth.Auth.Persistence.NONE);
                 await firebase.auth().signInWithEmailAndPassword(email, pass);
 
                 localStorage.setItem('adminRole', role);
