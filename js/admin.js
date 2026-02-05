@@ -310,10 +310,26 @@ function toggleForm() {
         previewImg.style.display = 'none';
         document.getElementById('edit-id').value = '';
         document.getElementById('p-image-base64').value = '';
+        const previewImg = document.getElementById('preview-img');
+        const removeBtn = document.getElementById('remove-img-btn');
+        if (previewImg) previewImg.style.display = 'none';
+        if (removeBtn) removeBtn.style.display = 'none';
         colorVariants = [];
         renderColorVariants();
         document.getElementById('form-title').innerText = 'إضافة منتج جديد';
     }
+}
+
+function removeMainImage() {
+    document.getElementById('p-image-base64').value = '';
+    const previewImg = document.getElementById('preview-img');
+    const removeBtn = document.getElementById('remove-img-btn');
+    if (previewImg) {
+        previewImg.src = '';
+        previewImg.style.display = 'none';
+    }
+    if (removeBtn) removeBtn.style.display = 'none';
+    document.getElementById('p-image').value = '';
 }
 
 function addColorVariant(name = '', image = '') {
@@ -415,8 +431,13 @@ async function handleImage(input) {
             const base64 = e.target.result;
             const hdImage = await compressImage(base64);
             document.getElementById('p-image-base64').value = hdImage;
-            previewImg.src = hdImage;
-            previewImg.style.display = 'block';
+            const previewImg = document.getElementById('preview-img');
+            const removeBtn = document.getElementById('remove-img-btn');
+            if (previewImg) {
+                previewImg.src = hdImage;
+                previewImg.style.display = 'block';
+            }
+            if (removeBtn) removeBtn.style.display = 'flex';
         };
         reader.readAsDataURL(input.files[0]);
     }
@@ -550,8 +571,8 @@ async function loadProducts() {
 
             html += `
                 <tr style="${isHidden ? 'opacity: 0.5; background: rgba(0,0,0,0.2);' : ''}">
-                    <td><img src="${p.image}" class="product-thumb"></td>
-                    <td>
+                    <td><img src="${p.image}" class="product-thumb" style="cursor:pointer" onclick="editProduct('${p.id}')"></td>
+                    <td style="cursor:pointer" onclick="editProduct('${p.id}')">
                         ${p.name}
                         ${isHidden ? '<br><span style="font-size:0.7rem; color:#f44336; font-weight:bold;">[مخفي]</span>' : ''}
                     </td>
@@ -635,8 +656,15 @@ async function editProduct(id) {
     renderColorVariants();
     document.getElementById('p-badge').value = p.badge || '';
     document.getElementById('p-image-base64').value = p.image || "";
-    previewImg.src = p.image || "";
-    previewImg.style.display = p.image ? 'block' : 'none';
+
+    const previewImg = document.getElementById('preview-img');
+    const removeBtn = document.getElementById('remove-img-btn');
+    if (previewImg) {
+        previewImg.src = p.image || "";
+        previewImg.style.display = p.image ? 'block' : 'none';
+    }
+    if (removeBtn) removeBtn.style.display = p.image ? 'flex' : 'none';
+
     document.getElementById('form-title').innerText = 'تعديل المنتج';
     document.getElementById('productForm').style.display = 'block';
     window.scrollTo({ top: 0, behavior: 'smooth' });
