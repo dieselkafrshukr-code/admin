@@ -25,29 +25,31 @@ if (firebaseConfig.apiKey !== "YOUR_API_KEY") {
     productsCol = db.collection('products');
     isFirebaseReady = true;
 
-    // FORCE LOGIN ON EVERY RELOAD
-    firebase.auth().signOut();
+    // --- STRICT SECURITY: FORCE LOGIN ON EVERY RELOAD ---
+    // 1. Clear current role immediately
     localStorage.removeItem('adminRole');
     adminRole = 'none';
-    console.log("🔒 Security: Login required on every reload.");
 
+    // 2. Wrap auth logic to prevent "auto-login" flicker
     firebase.auth().onAuthStateChanged(user => {
         const loginOverlay = document.getElementById('login-overlay');
         const adminContent = document.getElementById('admin-main-content');
 
-        if (user) {
+        // Even if Firebase "remembers" the user, we ignore it unless adminRole is set by our form
+        if (user && adminRole !== 'none') {
             loginOverlay.style.display = 'none';
             adminContent.style.display = 'block';
             applyRoleRestrictions();
 
-            if (adminRole === 'products') { showTab('products'); loadProducts(); }
-            else if (adminRole === 'orders') { showTab('orders'); loadOrders(); setupRealtimeNotifications(); }
-            else if (adminRole === 'shipping') { showTab('shipping'); loadShippingCosts(); }
-            else if (adminRole === 'all') { showTab('products'); loadProducts(); loadShippingCosts(); setupRealtimeNotifications(); }
+            // Load correct tab
+            if (adminRole === 'products') showTab('products');
+            else if (adminRole === 'orders') showTab('orders');
+            else if (adminRole === 'all') showTab('products');
 
-            // Initialize FCM Messaging
             initMessaging();
         } else {
+            // Force logout if they try to bypass or reload
+            if (user) firebase.auth().signOut();
             loginOverlay.style.display = 'flex';
             adminContent.style.display = 'none';
         }
