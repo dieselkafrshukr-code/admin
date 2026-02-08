@@ -587,7 +587,7 @@ async function loadProducts() {
                     <td class="actions">
                         <i class="fas ${isHidden ? 'fa-eye-slash' : 'fa-eye'}" 
                            style="color: ${isHidden ? '#888' : '#4CAF50'}; cursor: pointer; font-size: 1.2rem;" 
-                           onclick="toggleVisibility('${p.id}', ${!isHidden})" 
+                           onclick="toggleVisibility('${p.id}', ${isHidden})" 
                            title="${isHidden ? 'إظهار المنتج' : 'إخفاء المنتج'}"></i>
                         <i class="fas fa-edit btn-edit" style="font-size: 1.2rem;" onclick="editProduct('${p.id}')" title="تعديل"></i>
                         <i class="fas fa-trash-alt btn-delete" style="font-size: 1.2rem;" onclick="deleteProduct('${p.id}')" title="حذف نهائي"></i>
