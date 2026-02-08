@@ -57,16 +57,7 @@ if (firebaseConfig.apiKey !== "YOUR_API_KEY") {
 }
 
 function initMessaging() {
-    // Safety check: is messaging available?
-    if (firebase.messaging && typeof firebase.messaging.isSupported === 'function' && firebase.messaging.isSupported()) {
-        messaging = firebase.messaging();
-        messaging.getToken({ vapidKey: 'BLz8n6V4mXo_kK9S_vE9_Q7U8R1H_X9G_v9A_V9A_V9A_V9A_V9A' }) // Placeholder VAPID, will likely fail without real one but sets structure
-            .then((currentToken) => {
-                if (currentToken) {
-                    db.collection('admin_tokens').doc('primary_admin').set({ token: currentToken, lastUpdated: new Date() });
-                }
-            }).catch((err) => console.log('An error occurred while retrieving token. ', err));
-    }
+    console.log("Messaging disabled for debugging.");
 }
 
 function setupRealtimeNotifications() {
@@ -607,14 +598,28 @@ async function loadProducts() {
 }
 
 async function toggleVisibility(id, currentlyHidden) {
+    console.log(`👁️ Toggle Visibility for ${id} (Current: ${currentlyHidden})`);
     const action = currentlyHidden ? "إظهار" : "إخفاء";
+
+    // Use a custom confirming logic if needed, but standard confirm is safest
     if (!confirm(`هل تريد ${action} هذا المنتج من الموقع؟`)) return;
 
     showLoader(true);
+    // Explicitly define the new state
     const newStatus = currentlyHidden ? 'active' : 'hidden';
+    const isNowActive = (newStatus === 'active');
+
+    console.log(`📝 Setting status to: ${newStatus} (Active: ${isNowActive})`);
+
     try {
         if (isFirebaseReady && !id.startsWith('L')) {
-            await productsCol.doc(id).update({ status: newStatus, updatedAt: new Date().toISOString() });
+            // Update both fields to be 100% sure
+            await productsCol.doc(id).update({
+                status: newStatus,
+                active: isNowActive,
+                updatedAt: new Date().toISOString()
+            });
+            console.log("✅ Firestore updated successfully");
         }
 
         // Update local if exists
@@ -622,13 +627,19 @@ async function toggleVisibility(id, currentlyHidden) {
         const idx = localProds.findIndex(p => p.id == id);
         if (idx !== -1) {
             localProds[idx].status = newStatus;
+            localProds[idx].active = isNowActive;
             localProds[idx].updatedAt = new Date().toISOString();
             localStorage.setItem('diesel_products', JSON.stringify(localProds));
+            console.log("✅ Local storage updated");
         }
 
-        loadProducts();
+        // Important: Wait for reload
+        await loadProducts();
+        alert(`تم ${action} المنتج بنجاح!`);
+
     } catch (err) {
-        alert("فشل تغيير الحالة!");
+        console.error("❌ Toggle Error:", err);
+        alert("فشل تغيير الحالة: " + (err.message || err));
     }
     showLoader(false);
 }
