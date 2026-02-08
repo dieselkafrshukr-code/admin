@@ -221,6 +221,14 @@ async function saveShippingCosts() {
     showLoader(false);
 }
 
+function resetShippingCosts() {
+    if (!confirm("هل أنت متأكد من تصفير جميع أسعار الشحن؟")) return;
+    document.querySelectorAll('.shipping-input').forEach(input => {
+        input.value = 0;
+    });
+    alert("تم تصفير الأسعار في الصفحة. ⚠️ اضغط على زر 'حفظ التكاليف' لتأكيد التغييرات.");
+}
+
 function logout() {
     firebase.auth().signOut();
     localStorage.removeItem('adminRole');

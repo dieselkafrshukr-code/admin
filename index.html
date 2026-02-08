@@ -738,7 +738,13 @@
         <div id="shipping-section" style="display: none;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
                 <h2>إعدادات الشحن 🚚</h2>
-                <button class="btn-add" onclick="saveShippingCosts()"><i class="fas fa-save"></i> حفظ التكاليف</button>
+                <div style="display: flex; gap: 10px;">
+                    <button class="btn-add" style="background: #f44336;" onclick="resetShippingCosts()">
+                        <i class="fas fa-trash-alt"></i> تصفير الكل
+                    </button>
+                    <button class="btn-add" onclick="saveShippingCosts()"><i class="fas fa-save"></i> حفظ
+                        التكاليف</button>
+                </div>
             </div>
             <div class="products-table-container">
                 <p style="margin-bottom: 15px; opacity: 0.7;">قم بتحديد تكلفة الشحن لكل محافظة (0 يعني شحن مجاني)</p>
