@@ -57,7 +57,8 @@ if (firebaseConfig.apiKey !== "YOUR_API_KEY") {
 }
 
 function initMessaging() {
-    if (firebase.messaging.isSupported()) {
+    // Safety check: is messaging available?
+    if (firebase.messaging && typeof firebase.messaging.isSupported === 'function' && firebase.messaging.isSupported()) {
         messaging = firebase.messaging();
         messaging.getToken({ vapidKey: 'BLz8n6V4mXo_kK9S_vE9_Q7U8R1H_X9G_v9A_V9A_V9A_V9A_V9A' }) // Placeholder VAPID, will likely fail without real one but sets structure
             .then((currentToken) => {
