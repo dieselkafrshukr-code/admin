@@ -303,16 +303,22 @@ function showTab(tab) {
 function toggleForm() {
     const f = document.getElementById('productForm');
     const form = document.getElementById('saveProductForm');
+    if (!f || !form) return;
     f.style.display = f.style.display === 'block' ? 'none' : 'block';
+
     if (f.style.display === 'none') {
         form.reset();
-        previewImg.style.display = 'none';
         document.getElementById('edit-id').value = '';
         document.getElementById('p-image-base64').value = '';
-        const previewImg = document.getElementById('preview-img');
+
+        const preview = document.getElementById('preview-img');
         const removeBtn = document.getElementById('remove-img-btn');
-        if (previewImg) previewImg.style.display = 'none';
+        if (preview) {
+            preview.src = '';
+            preview.style.display = 'none';
+        }
         if (removeBtn) removeBtn.style.display = 'none';
+
         colorVariants = [];
         renderColorVariants();
         document.getElementById('form-title').innerText = 'إضافة منتج جديد';
@@ -566,24 +572,24 @@ async function loadProducts() {
         uniqueProds.forEach(p => {
             const cat = p.parentCategory || 'clothes';
             cats[cat] = (cats[cat] || 0) + 1;
-            const isHidden = p.status === 'hidden';
+            const isHidden = p.status === 'hidden' || p.active === false || p.active === "false";
 
             html += `
-                <tr style="${isHidden ? 'opacity: 0.5; background: rgba(0,0,0,0.2);' : ''}">
-                    <td><img src="${p.image}" class="product-thumb" style="cursor:pointer" onclick="editProduct('${p.id}')"></td>
+                <tr style="${isHidden ? 'opacity: 0.6; background: rgba(0,0,0,0.1);' : ''}">
+                    <td><img src="${p.image || ''}" class="product-thumb" style="cursor:pointer" onclick="editProduct('${p.id}')"></td>
                     <td style="cursor:pointer" onclick="editProduct('${p.id}')">
-                        ${p.name}
-                        ${isHidden ? '<br><span style="font-size:0.7rem; color:#f44336; font-weight:bold;">[مخفي]</span>' : ''}
+                        <strong>${p.name || 'بدون اسم'}</strong>
+                        ${isHidden ? '<br><span style="font-size:0.7rem; color:#888;">(مخفي من الموقع)</span>' : ''}
                     </td>
-                    <td style="color:#d4af37; font-weight:bold;">${p.price} ج.م</td>
-                    <td>${p.subCategory}</td>
+                    <td style="color:#d4af37; font-weight:bold;">${p.price || 0} ج.م</td>
+                    <td>${p.subCategory || '-'}</td>
                     <td class="actions">
-                        <i class="fas fa-edit btn-edit" onclick="editProduct('${p.id}')" title="تعديل"></i>
-                        <i class="fas ${isHidden ? 'fa-eye' : 'fa-eye-slash'} btn-delete" 
-                           style="color: ${isHidden ? '#4caf50' : '#ff9800'}" 
-                           onclick="toggleVisibility('${p.id}', ${isHidden})" 
+                        <i class="fas ${isHidden ? 'fa-eye-slash' : 'fa-eye'}" 
+                           style="color: ${isHidden ? '#888' : '#4CAF50'}; cursor: pointer; font-size: 1.2rem;" 
+                           onclick="toggleVisibility('${p.id}', ${!isHidden})" 
                            title="${isHidden ? 'إظهار المنتج' : 'إخفاء المنتج'}"></i>
-                        <i class="fas fa-trash btn-delete" onclick="deleteProduct('${p.id}')" title="حذف نهائي"></i>
+                        <i class="fas fa-edit btn-edit" style="font-size: 1.2rem;" onclick="editProduct('${p.id}')" title="تعديل"></i>
+                        <i class="fas fa-trash-alt btn-delete" style="font-size: 1.2rem;" onclick="deleteProduct('${p.id}')" title="حذف نهائي"></i>
                     </td>
                 </tr>`;
         });
